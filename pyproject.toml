@@ -10,7 +10,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
-requires-python = ">=3.10, <=3.11"
+requires-python = ">=3.10, <3.12"
 dependencies = [
     "python-telegram-bot ~=13.7",
     "redis>=5.2",
