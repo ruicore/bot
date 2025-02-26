@@ -1,10 +1,29 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import configparser
+
+from pydantic import BaseModel
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
-
-    ACCESS_TOKEN: str = ''
+class Telegram(BaseModel):
+    access_token: str
 
 
-settings = Settings()
+class ChatGPT(BaseModel):
+    basicurl: str
+    modelname: str
+    apiversion: str
+    access_token: str
+
+
+class Config(BaseModel):
+    telegram: Telegram
+    redis: dict[str, str | bool]
+    chatgpt: ChatGPT
+
+    @classmethod
+    def from_config(cls, file: str = '.ini') -> 'Config':
+        parser = configparser.ConfigParser()
+        parser.read(file)
+        return cls(**{s.lower(): dict(parser.items(s)) for s in parser.sections()})  # type:ignore
+
+
+config = Config.from_config()

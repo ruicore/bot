@@ -64,7 +64,7 @@ disable = [
     "duplicate-code",
     "redefined-builtin",
     "broad-except",
-    "abstract-class-instantiated"
+    "abstract-class-instantiated",
 ]
 
 
