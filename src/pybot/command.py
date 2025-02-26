@@ -33,6 +33,11 @@ def add(update: Update, context: CallbackContext[Any, Any, Any]) -> None:
         logging.error(e)
 
 
+def hello_command(update: Update, context: CallbackContext[Any, Any, Any]) -> None:
+    reply_message = ' '.join(context.args)  # type:ignore
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f'Good day, {reply_message}!')  # type:ignore
+
+
 def equipped_chatgpt(update: Update, context: CallbackContext[Any, Any, Any]) -> None:
     reply_message = chatgpt.submit(update.message.text)
     logging.info('Update: %s', update)

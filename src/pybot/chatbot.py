@@ -2,7 +2,7 @@ import logging
 
 from telegram.ext import CommandHandler, Dispatcher, Filters, MessageHandler, Updater
 
-from pybot.command import add, equipped_chatgpt, help_command
+from pybot.command import add, equipped_chatgpt, hello_command, help_command
 from pybot.setting import config
 
 
@@ -14,6 +14,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler('add', add))
     dispatcher.add_handler(CommandHandler('help', help_command))
+    dispatcher.add_handler(CommandHandler('hello', hello_command))
     dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), equipped_chatgpt))
 
     updater.start_polling()
