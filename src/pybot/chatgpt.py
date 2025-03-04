@@ -1,6 +1,6 @@
 import requests
 
-from pybot.setting import ChatGPT, config
+from setting import ChatGPT, config
 
 
 class HKBUChatGPT:

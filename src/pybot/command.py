@@ -4,8 +4,8 @@ from typing import Any
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from pybot.chatgpt import chatgpt
-from pybot.repository import repo
+from chatgpt import chatgpt
+from repository import repo
 
 
 def help_command(update: Update, _: CallbackContext[Any, Any, Any]) -> None:

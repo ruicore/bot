@@ -2,8 +2,8 @@ import logging
 
 from telegram.ext import CommandHandler, Dispatcher, Filters, MessageHandler, Updater
 
-from pybot.command import add, equipped_chatgpt, hello_command, help_command
-from pybot.setting import config
+from command import add, equipped_chatgpt, hello_command, help_command
+from setting import config
 
 
 def main():
