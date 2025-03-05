@@ -1,11 +1,10 @@
 import logging
 from typing import Any
 
-from telegram import Update
-from telegram.ext import CallbackContext
-
 from chatgpt import chatgpt
 from repository import repo
+from telegram import Update
+from telegram.ext import CallbackContext
 
 
 def help_command(update: Update, _: CallbackContext[Any, Any, Any]) -> None:
