@@ -1,9 +1,8 @@
 import logging
 
-from telegram.ext import CommandHandler, Dispatcher, Filters, MessageHandler, Updater
-
 from command import add, equipped_chatgpt, hello_command, help_command
 from setting import config
+from telegram.ext import CommandHandler, Dispatcher, Filters, MessageHandler, Updater
 
 
 def main():

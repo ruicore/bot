@@ -1,5 +1,4 @@
 import requests
-
 from setting import ChatGPT, config
 
 
