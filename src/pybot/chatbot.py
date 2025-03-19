@@ -16,7 +16,7 @@ class TelegramBot:
         self.chatgpt_service = ChatGPTService(config.chatgpt)
         self.redis_repo = RedisRepository(config.redis)
         self.user_service = UserService(self.chatgpt_service)
-        self.event_service = EventService(self.chatgpt_service)
+        self.event_service = EventService(self.chatgpt_service, self.redis_repo)
         self.command_handler = TelegramCommandHandler(
             self.redis_repo,
             self.chatgpt_service,
@@ -32,13 +32,14 @@ class TelegramBot:
         self.dispatcher.add_handler(CommandHandler('add', self.command_handler.add))
         self.dispatcher.add_handler(CommandHandler('register', self.command_handler.register))
         self.dispatcher.add_handler(CommandHandler('events', self.command_handler.events))
+        self.dispatcher.add_handler(CommandHandler('more_events', self.command_handler.more_events))
         self.dispatcher.add_handler(
             MessageHandler(Filters.text & (~Filters.command), self.command_handler.handle_message)
         )
         return self
 
     def run(self) -> Self:
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
         self.setup_handlers()
         self.updater.start_polling()
         self.updater.idle()

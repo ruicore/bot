@@ -1,27 +1,25 @@
 from typing import Dict, List, Set
+
 from pydantic import BaseModel
+
 from .chatgpt import ChatGPTService
+
 
 class UserProfile(BaseModel):
     username: str
     interests: Set[str]
-    description: str = ""  # Optional context provided by the user
+    description: str = ''
+
 
 class UserService:
     def __init__(self, chatgpt_service: ChatGPTService):
         self.chatgpt_service = chatgpt_service
-        self.users: Dict[str, UserProfile] = {}  # In-memory storage (replace with cloud DB later)
+        self.users: Dict[str, UserProfile] = {}
 
-    def register_user(self, username: str, interests: List[str], description: str = "") -> None:
-        """Register or update a user's profile with interests and optional description."""
-        self.users[username] = UserProfile(
-            username=username, 
-            interests=set(interests), 
-            description=description.strip()
-        )
+    def register_user(self, username: str, interests: List[str], description: str = '') -> None:
+        self.users[username] = UserProfile(username=username, interests=set(interests), description=description.strip())
 
     def find_matches(self, username: str) -> List[str]:
-        """Find users with similar interests using ChatGPT for semantic matching."""
         if username not in self.users:
             return []
 
@@ -30,42 +28,39 @@ class UserService:
         if not other_users:
             return []
 
-        # Craft a prompt for ChatGPT to find matches
         prompt = (
-            "You are a matchmaking assistant. I have a user with the following profile:\n"
+            'You are a matchmaking assistant. I have a user with the following profile:\n'
             f"Interests: {', '.join(current_user.interests)}\n"
             f"Description: {current_user.description or 'No additional context provided.'}\n\n"
-            "Here are other user profiles:\n"
+            'Here are other user profiles:\n'
         )
         for i, user in enumerate(other_users, 1):
             prompt += (
-                f"User {i}:\n"
+                f'User {i}:\n'
                 f"Interests: {', '.join(user.interests)}\n"
                 f"Description: {user.description or 'No additional context provided.'}\n"
             )
         prompt += (
-            "\nBased on the interests and descriptions, suggest up to 3 users who are the best matches "
-            "for the first user. Provide their user numbers (e.g., User 1, User 2) and a brief reason "
-            "for each match. Format your response as:\n"
-            "- User X: [reason]\n"
-            "- User Y: [reason]\n"
-            "- User Z: [reason]"
+            '\nBased on the interests and descriptions, suggest up to 3 users who are the best matches '
+            'for the first user. Provide their user numbers (e.g., User 1, User 2) and a brief reason '
+            'for each match. Format your response as:\n'
+            '- User X: [reason]\n'
+            '- User Y: [reason]\n'
+            '- User Z: [reason]'
         )
 
-        # Get response from ChatGPT
         response = self.chatgpt_service.submit(prompt)
-        if "Error" in response:
+        if 'Error' in response:
             return []
 
-        # Parse matches
         matches = []
         try:
-            for line in response.strip().split("\n"):
-                if line.startswith("- User"):
-                    user_num = int(line.split(":")[0].split("User")[1].strip()) - 1
+            for line in response.strip().split('\n'):
+                if line.startswith('- User'):
+                    user_num = int(line.split(':')[0].split('User')[1].strip()) - 1
                     if 0 <= user_num < len(other_users):
                         matches.append(other_users[user_num].username)
         except Exception:
-            return []  # Fallback to empty list if parsing fails
+            return []
 
         return matches
