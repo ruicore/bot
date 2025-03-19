@@ -43,6 +43,3 @@ class Config(BaseModel):
 
 
 config = Config.from_config()
-
-if __name__ == '__main__':
-    pass
