@@ -1,38 +1,71 @@
-import logging
 from typing import Dict, List, Set
-
 from pydantic import BaseModel
+from .chatgpt import ChatGPTService
 
-
-class UserInterest(BaseModel):
+class UserProfile(BaseModel):
     username: str
     interests: Set[str]
-
+    description: str = ""  # Optional context provided by the user
 
 class UserService:
-    def __init__(self):
-        self.users: Dict[str, UserInterest] = {}
-        self.logger = logging.getLogger(__name__)
-        self.logger.info('Initialized UserService with in-memory storage')
+    def __init__(self, chatgpt_service: ChatGPTService):
+        self.chatgpt_service = chatgpt_service
+        self.users: Dict[str, UserProfile] = {}  # In-memory storage (replace with cloud DB later)
 
-    def register_user(self, username: str, interests: List[str]) -> None:
-        self.logger.info('Registering user %s with interests: %s', username, interests)
-        self.users[username] = UserInterest(username=username, interests=set(interests))
+    def register_user(self, username: str, interests: List[str], description: str = "") -> None:
+        """Register or update a user's profile with interests and optional description."""
+        self.users[username] = UserProfile(
+            username=username, 
+            interests=set(interests), 
+            description=description.strip()
+        )
 
     def find_matches(self, username: str) -> List[str]:
-        self.logger.debug('Finding matches for user: %s', username)
+        """Find users with similar interests using ChatGPT for semantic matching."""
         if username not in self.users:
-            self.logger.warning('User %s not found in registry', username)
             return []
 
         current_user = self.users[username]
-        matches = []
-        for other_user in self.users.values():
-            if other_user.username != username and current_user.interests & other_user.interests:
-                matches.append(other_user.username)
-        self.logger.info('Found %d matches for %s: %s', len(matches), username, matches)
-        return matches
+        other_users = [u for u in self.users.values() if u.username != username]
+        if not other_users:
+            return []
 
-    def get_user_interests(self, username: str) -> Set[str]:
-        self.logger.debug('Retrieving interests for user: %s', username)
-        return self.users.get(username, UserInterest(username=username, interests=set())).interests
+        # Craft a prompt for ChatGPT to find matches
+        prompt = (
+            "You are a matchmaking assistant. I have a user with the following profile:\n"
+            f"Interests: {', '.join(current_user.interests)}\n"
+            f"Description: {current_user.description or 'No additional context provided.'}\n\n"
+            "Here are other user profiles:\n"
+        )
+        for i, user in enumerate(other_users, 1):
+            prompt += (
+                f"User {i}:\n"
+                f"Interests: {', '.join(user.interests)}\n"
+                f"Description: {user.description or 'No additional context provided.'}\n"
+            )
+        prompt += (
+            "\nBased on the interests and descriptions, suggest up to 3 users who are the best matches "
+            "for the first user. Provide their user numbers (e.g., User 1, User 2) and a brief reason "
+            "for each match. Format your response as:\n"
+            "- User X: [reason]\n"
+            "- User Y: [reason]\n"
+            "- User Z: [reason]"
+        )
+
+        # Get response from ChatGPT
+        response = self.chatgpt_service.submit(prompt)
+        if "Error" in response:
+            return []
+
+        # Parse matches
+        matches = []
+        try:
+            for line in response.strip().split("\n"):
+                if line.startswith("- User"):
+                    user_num = int(line.split(":")[0].split("User")[1].strip()) - 1
+                    if 0 <= user_num < len(other_users):
+                        matches.append(other_users[user_num].username)
+        except Exception:
+            return []  # Fallback to empty list if parsing fails
+
+        return matches

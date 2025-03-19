@@ -15,7 +15,7 @@ class TelegramBot:
         self.config = config
         self.chatgpt_service = ChatGPTService(config.chatgpt)
         self.redis_repo = RedisRepository(config.redis)
-        self.user_service = UserService()
+        self.user_service = UserService(self.chatgpt_service)
         self.event_service = EventService(self.chatgpt_service)
         self.command_handler = TelegramCommandHandler(
             self.redis_repo,
