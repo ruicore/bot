@@ -35,7 +35,7 @@ repos:
       name: isort
       entry: isort
       args:
-        - src/
+        - src/pybot/
       language: system
       pass_filenames: false
 
@@ -49,8 +49,8 @@ repos:
       language: system
       pass_filenames: false
       args:
-        - src/
-        - --source-roots=src/
+        - src/pybot/
+        - --source-roots=src/pybot/
         - --disable=no-member
         - --disable=invalid-name
 
@@ -69,6 +69,6 @@ repos:
         name: mypy
         entry: mypy
         args:
-          - src/
+          - src/pybot/
         pass_filenames: false
         language: system
