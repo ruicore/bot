@@ -1,5 +1,5 @@
 import requests
-from setting import ChatGPTConfig
+from pybot.setting import ChatGPTConfig
 
 
 class ChatGPTService:
